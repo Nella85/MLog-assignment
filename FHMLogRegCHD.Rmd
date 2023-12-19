@@ -1,0 +1,300 @@
+---
+title: "FHLogReg2"
+author: "Nionella Bt Stephen Sampil"
+date: "2023-12-18"
+output: html_document
+---
+
+# Introduction
+
+## Group Members
+
+Nionella binti Stephen Sampil
+
+Wan Nor Syafiqah binti Wan Salleh
+
+Nur Hafizah binti Sukeri
+
+Farah Munirah binti Mior Mazlan
+
+Zahid bin Zulkifli
+
+Ahmad Firdaus bin Mohamed
+
+## Dataset
+
+This dataset is publically available on the Kaggle website, it is an ongoing cardiovascular study on residents of the town of Framingham, Massachusetts. The dataset provides the patient's information. It includes over 4000 records and 15 attributes.
+
+Variables:
+
+Each attribute is a potential risk factor. There are both demographic, behavioral and medical risk factors.
+
+**Demographic:**
+
+-   Sex: male or female(Nominal)
+
+-   Age: Age of the patient;(Continuous )
+
+**Behavioral**
+
+-   Current Smoker: whether or not the patient is a current smoker (Categorical/Nominal)
+
+-   Cigs Per Day: the number of cigarettes that the person smoked on average in one day.(continuous)
+
+**Medical( history)**
+
+-   BP Meds: whether or not the patient was on blood pressure medication (Categorical/Nominal)
+
+-   Prevalent Stroke: whether or not the patient had previously had a stroke (Categorical/Nominal)
+
+-   Prevalent Hyp: whether or not the patient was hypertensive (Categorical/Nominal)
+
+-   Diabetes: whether or not the patient had diabetes (Categorical/Nominal)
+
+**Medical(current)**
+
+-   Tot Chol: total cholesterol level (Continuous)
+
+-   Sys BP: systolic blood pressure (Continuous)
+
+-   Dia BP: diastolic blood pressure (Continuous)
+
+-   BMI: Body Mass Index (Continuous)
+
+-   Heart Rate: heart rate (Continuous)
+
+-   Glucose: glucose level (Continuous)
+
+    **Predict variable (desired target)**
+
+-   10 year risk of coronary heart disease CHD (binary: "1", means "Yes", "0" means "No")
+
+# Method
+
+World Health Organization has estimated 12 million deaths occur worldwide, every year due to Heart diseases. Half the deaths in the United States and other developed countries are due to cardio vascular diseases. The early prognosis of cardiovascular diseases can aid in making decisions on lifestyle changes in high risk patients and in turn reduce the complications. This research intends to pinpoint the most relevant/risk factors of heart disease as well as predict the overall risk using logistic regression.
+
+### Prepare environment / Load libraries
+
+```{r}
+library(haven)
+library(tidyverse)
+library(gtsummary)
+library(broom)
+library(knitr)
+library(tidyr)
+```
+
+### Read data
+
+```{r}
+Data1 <- read.csv("framingham.csv")
+```
+
+### View Data
+
+```{r}
+summary(Data1)
+str(Data1)
+glimpse(Data1)
+```
+
+### Transform data
+
+```{r}
+Data1 <- 
+  Data1 %>% mutate(across(where(is.integer), as_factor))
+summary(Data1)
+```
+
+### Describe Data
+
+```{r}
+Data1 %>%
+  dplyr::select(-codesub) %>%
+  tbl_summary(by = dmdx, statistic = list(all_continuous() ~ "{mean} ({sd})", all_categorical() ~ "{n} / {N} ({p}%)"))
+```
+
+### Explore data
+
+#### Plots
+
+Histogram for numerical Barplots for categorical
+
+Numerical: Age, HT, Wt, Waist, Hip, sbp, dbp, hba1c, fbs, mogtt, totchol,TG, HDL, LDL, Categorical: Hpt, smoking,dmdx, gender, crural
+
+```{r}
+Data1 %>% 
+  ggplot(aes(age)) + geom_histogram() + facet_grid(. ~ dmdx)
+```
+
+```{r}
+Data1 %>%
+  ggplot(aes(hba1c)) +
+  geom_histogram() +
+  facet_grid(. ~ dmdx)
+```
+
+Barplots
+
+```{r}
+Data1 %>% 
+  ggplot(aes(hpt)) + 
+  geom_bar() +
+  facet_grid(. ~ dmdx)
+```
+
+```{r}
+Data1 %>%
+  ggplot(aes(smoking)) +
+  geom_bar() +
+  facet_grid(. ~ dmdx)
+
+```
+
+# Results
+
+## Simple Logistic Regression
+
+Outcome: Diabetes status
+
+Numerical: Age, HT, Wt, Waist, Hip, sbp, dbp, hba1c, fbs, mogtt, totchol,TG, HDL, LDL, Categorical: Hpt, smoking,dmdx, gender, crural
+
+### Age
+
+```{r}
+slr.age <- glm(dmdx ~ age, data = Data1, family = binomial(link = "logit"))
+summary(slr.age)
+```
+
+### Height
+
+```{r}
+slr.ht <- glm(dmdx ~ height, data = Data1, family = binomial(link = "logit"))
+summary(slr.ht)
+```
+
+### Weight
+
+```{r}
+slr.wt <- glm(dmdx ~ weight, data = Data1, family = binomial(link = "logit"))
+summary(slr.wt)
+```
+
+### Waist
+
+```{r}
+slr.waist <- glm(dmdx ~ waist, data = Data1, family = binomial(link = "logit"))
+summary(slr.waist)
+```
+
+### Hip
+
+```{r}
+slr.hip <- glm(dmdx ~ hip, data = Data1, family = binomial(link = "logit"))
+summary(slr.hip)
+```
+
+### SBP
+
+```{r}
+slr.sbp <- glm(dmdx ~ msbpr, data = Data1, family = binomial(link = "logit"))
+summary(slr.sbp)
+```
+
+### DBP
+
+```{r}
+slr.dbp <- glm(dmdx ~ mdbpr, data = Data1, family = binomial(link = "logit"))
+summary(slr.dbp)
+```
+
+### hba1c
+
+```{r}
+slr.hba1c <- glm(dmdx ~ hba1c, data = Data1, family = binomial(link = "logit"))
+summary(slr.hba1c)
+```
+
+### FBS
+
+```{r}
+slr.fbs <- glm(dmdx ~ fbs, data = Data1, family = binomial(link = "logit"))
+summary(slr.fbs)
+```
+
+### MOGTT
+
+```{r}
+slr.mogtt1h <- glm(dmdx ~ mogtt1h, data = Data1, family = binomial(link = "logit"))
+summary(slr.mogtt1h)
+```
+
+### Total Cholesterol
+
+```{r}
+slr.totchol <- glm(dmdx ~ totchol, data = Data1, family = binomial(link = "logit"))
+summary(slr.totchol)
+```
+
+### Free Triglycerides
+
+```{r}
+slr.tg <- glm(dmdx ~ ftrigliz, data = Data1, family = binomial(link = "logit"))
+summary(slr.tg)
+```
+
+### HDL
+
+```{r}
+slr.hdl <- glm(dmdx ~ hdl, data = Data1, family = binomial(link = "logit"))
+summary(slr.hdl)
+```
+
+### LDL
+
+```{r}
+slr.ldl <- glm(dmdx ~ ldl, data = Data1, family = binomial(link = "logit"))
+summary(slr.ldl)
+```
+
+### Gender
+
+```{r}
+slr.gender <- glm(dmdx ~ gender, data = Data1, family = binomial(link = "logit"))
+tidy(slr.gender)
+```
+
+### Crural
+
+```{r}
+slr.crural <- glm(dmdx ~ crural, data = Data1, family = binomial(link = "logit"))
+tidy(slr.crural)
+```
+
+### Hpt
+
+```{r}
+slr.hpt <- glm(dmdx ~ hpt, data = Data1, family = binomial(link = "logit"))
+tidy(slr.hpt)
+```
+
+### Smoking
+
+```{r}
+slr.smoking <- glm(dmdx ~ smoking, data = Data1, family = binomial(link = "logit"))
+tidy(slr.smoking)
+```
+
+#### ALL VARIABLES
+
+```{r}
+#tbl_uvregression(Data1, method = glm, y = dmdx, method.args = list(family = binomial), exponentiate = TRUE)
+```
+
+## Multiple Logistic Regression
+
+### Model without interaction
+
+Outcome: dmdx Categorical: Age, gender \### Model with interaction
+
+# Interpretation
